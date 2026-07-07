@@ -33,10 +33,7 @@ export function useNotificationSettings() {
         });
       }
     } else {
-      const fcmToken = await getFcmToken();
-      if (fcmToken) {
-        await unregisterDevice(fcmToken);
-      }
+      await unregisterDevice();
     }
 
     await SecureStore.setItemAsync(SETTINGS_STORE_KEYS.notificationsEnabled, String(next));

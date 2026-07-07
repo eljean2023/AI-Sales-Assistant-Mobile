@@ -2,6 +2,7 @@ export const SECURE_STORE_KEYS = {
   accessToken: "auth.accessToken",
   refreshToken: "auth.refreshToken",
   user: "auth.user",
+  deviceId: "device.id",
 } as const;
 
 export const SETTINGS_STORE_KEYS = {

@@ -19,6 +19,7 @@ export interface LoginResponse extends AuthTokens {
 }
 
 export interface RegisterDeviceRequest {
+  deviceId: string;
   fcmToken: string;
   platform: "ios" | "android";
   appVersion: string;

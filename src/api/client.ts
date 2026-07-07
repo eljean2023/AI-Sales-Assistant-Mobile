@@ -33,7 +33,7 @@ async function refreshAccessToken(): Promise<string | null> {
   // Plain axios call (not `apiClient`) so this request skips the auth
   // interceptors above and can't trigger itself recursively on a 401.
   const response = await axios.post<{ accessToken: string; refreshToken: string }>(
-    `${API_BASE_URL}/auth/refresh`,
+    `${API_BASE_URL}/api/mobile/auth/refresh`,
     { refreshToken },
   );
   await saveTokens(response.data);

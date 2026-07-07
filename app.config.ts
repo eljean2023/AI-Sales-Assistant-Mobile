@@ -51,7 +51,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
   ],
-  extra: {
-    apiBaseUrl: API_BASE_URL,
+ extra: {
+  apiBaseUrl: API_BASE_URL,
+  eas: {
+    projectId: "d9228e3a-8dbd-4cab-8265-10f02f40f784",
   },
+},
 });
