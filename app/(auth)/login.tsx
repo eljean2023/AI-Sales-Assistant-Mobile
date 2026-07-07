@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Text } from "react-native";
+import { isAxiosError } from "axios";
 
 import { useAuth } from "../../src/auth/useAuth";
 import { Button } from "../../src/components/ui/Button";
@@ -18,8 +19,16 @@ export default function LoginScreen() {
     setSubmitting(true);
     try {
       await login(email, password);
-    } catch {
-      setError("Invalid email or password.");
+    } catch (err) {
+      // A missing/unreachable API_BASE_URL or a dropped connection never got a response from
+      // the server at all, so it is not the same failure as the server actually rejecting the
+      // credentials (401) — conflating the two here is what made a pure connectivity
+      // misconfiguration look identical to "wrong password" during setup.
+      if (isAxiosError(err) && !err.response) {
+        setError("Can't reach the server. Check your connection and try again.");
+      } else {
+        setError("Invalid email or password.");
+      }
     } finally {
       setSubmitting(false);
     }
