@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "312370647984",
+    "project_id": "ai-sales-assistant-mobile",
+    "storage_bucket": "ai-sales-assistant-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:312370647984:android:aaf7692a3dd62fc1807c75",
+        "android_client_info": {
+          "package_name": "com.aisalesassistant.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvHEHbyHPaNdY7xkbPRoqDvjKEWkgA6p4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
