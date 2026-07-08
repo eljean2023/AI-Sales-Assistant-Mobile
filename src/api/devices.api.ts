@@ -14,3 +14,10 @@ export async function unregisterDevice(): Promise<void> {
   const deviceId = await getOrCreateDeviceId();
   await apiClient.post("/api/mobile/devices/unregister", { deviceId });
 }
+
+// TEMPORARY — debug helper for the FIREBASE_PRIVATE_KEY rotation investigation. Remove along
+// with the Settings screen button and the backend route once push is confirmed working.
+export async function sendTestPush(): Promise<unknown> {
+  const response = await apiClient.post("/api/mobile/devices/test-push");
+  return response.data;
+}
