@@ -7,6 +7,7 @@ export interface UserProfile {
   id: string;
   email: string;
   name?: string;
+  role?: string;
 }
 
 export interface LoginRequest {
@@ -23,4 +24,14 @@ export interface RegisterDeviceRequest {
   fcmToken: string;
   platform: "ios" | "android";
   appVersion: string;
+}
+
+export interface MobileNotification {
+  id: string;
+  source: "platform" | "tenant";
+  type: string;
+  title: string;
+  body: string | null;
+  createdAt: string;
+  readAt: string | null;
 }

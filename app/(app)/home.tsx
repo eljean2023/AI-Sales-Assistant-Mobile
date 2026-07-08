@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 
 import { useAuth } from "../../src/auth/useAuth";
 import { StatusBadge } from "../../src/components/StatusBadge";
+import { NotificationBell } from "../../src/components/NotificationBell";
 import { Button } from "../../src/components/ui/Button";
 import { Screen } from "../../src/components/ui/Screen";
 import { useNotifications } from "../../src/notifications/NotificationContext";
@@ -13,9 +14,12 @@ export default function HomeScreen() {
 
   return (
     <Screen>
-      <Text style={{ color: "#F5F7FA", fontSize: 22, fontWeight: "700" }}>
-        Welcome{user?.name ? `, ${user.name}` : ""}
-      </Text>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <Text style={{ color: "#F5F7FA", fontSize: 22, fontWeight: "700" }}>
+          Welcome{user?.name ? `, ${user.name}` : ""}
+        </Text>
+        <NotificationBell />
+      </View>
 
       <View style={{ marginTop: 24, marginBottom: 24 }}>
         <StatusBadge

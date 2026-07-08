@@ -3,6 +3,7 @@ export const SECURE_STORE_KEYS = {
   refreshToken: "auth.refreshToken",
   user: "auth.user",
   deviceId: "device.id",
+  readNotificationIds: "notifications.readIds",
 } as const;
 
 export const SETTINGS_STORE_KEYS = {
