@@ -6,7 +6,7 @@ export default function AuthLayout() {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return null;
-  if (isAuthenticated) return <Redirect href="/home" />;
+  if (isAuthenticated) return <Redirect href="/notifications" />;
 
   return <Slot />;
 }

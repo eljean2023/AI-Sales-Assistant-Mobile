@@ -7,5 +7,5 @@ export default function Index() {
 
   if (isLoading) return null;
 
-  return <Redirect href={isAuthenticated ? "/home" : "/login"} />;
+  return <Redirect href={isAuthenticated ? "/notifications" : "/login"} />;
 }

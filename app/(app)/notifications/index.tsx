@@ -1,15 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
 import { Alert, Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from "react-native";
 
+import { useAuth } from "../../../src/auth/useAuth";
+import { StatusBadge } from "../../../src/components/StatusBadge";
 import { Screen } from "../../../src/components/ui/Screen";
+import { ToggleRow } from "../../../src/components/ui/ToggleRow";
+import { useNotifications } from "../../../src/notifications/NotificationContext";
 import { type NotificationItem, useNotificationCenter } from "../../../src/notifications/NotificationCenterContext";
 import { getNotificationVisual, groupByDay, relativeTime } from "../../../src/notifications/presentation";
 import { colors } from "../../../src/theme/colors";
 
 export default function NotificationsScreen() {
+  const { user, logout } = useAuth();
+  const { notificationsEnabled, setNotificationsEnabled } = useNotifications();
   const { notifications, unreadCount, isLoading, refresh, markOneRead, markAllAsRead, deleteOne, deleteAll } =
     useNotificationCenter();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const initial = user?.name?.trim()?.charAt(0)?.toUpperCase() ?? "?";
 
   const sections = groupByDay(notifications).map((group) => ({
     title: `${group.label} (${group.items.length})`,
@@ -39,44 +49,101 @@ export default function NotificationsScreen() {
     ]);
   };
 
+  const handleLogout = async () => {
+    // Unregister this device first so the backend receives the request
+    // while the session's access token is still valid.
+    if (notificationsEnabled) {
+      await setNotificationsEnabled(false);
+    }
+    await logout();
+  };
+
   return (
     <Screen>
-      <View style={styles.header}>
-        <Text style={styles.title}>Notifications</Text>
-        <View style={styles.headerActions}>
-          {unreadCount > 0 ? (
-            <Pressable onPress={() => markAllAsRead()} hitSlop={8}>
-              <Text style={styles.markAllLabel}>Mark all as read</Text>
-            </Pressable>
-          ) : null}
-          {notifications.length > 0 ? (
-            <Pressable onPress={handleClearAll} hitSlop={8}>
-              <Text style={styles.clearAllLabel}>Clear all</Text>
-            </Pressable>
-          ) : null}
-        </View>
-      </View>
-
-      <SectionList
-        sections={sections}
-        keyExtractor={(item) => item.id}
-        stickySectionHeadersEnabled={false}
-        contentContainerStyle={notifications.length === 0 ? styles.emptyContainer : undefined}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refresh} tintColor={colors.primary} />}
-        renderSectionHeader={({ section }) => <Text style={styles.sectionLabel}>{section.title}</Text>}
-        renderItem={({ item }) => (
-          <NotificationRow item={item} onPress={() => handlePress(item)} onDelete={() => handleDelete(item)} />
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={
-          !isLoading ? (
-            <View style={styles.empty}>
-              <Ionicons name="notifications-off-outline" size={32} color={colors.textMuted} />
-              <Text style={styles.emptyLabel}>No notifications yet</Text>
+      <View style={styles.frame}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarLabel}>{initial}</Text>
             </View>
-          ) : null
-        }
-      />
+            <View>
+              <Text style={styles.greeting}>Welcome{user?.name ? `, ${user.name}` : ""}</Text>
+              <Text style={styles.subGreeting}>
+                {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}` : "You're all caught up"}
+              </Text>
+            </View>
+          </View>
+
+          <Pressable
+            onPress={() => setSettingsOpen((open) => !open)}
+            hitSlop={8}
+            style={({ pressed }) => [styles.gearButton, pressed && styles.gearPressed]}
+          >
+            <Ionicons name={settingsOpen ? "close" : "settings-outline"} size={20} color={colors.textPrimary} />
+          </Pressable>
+        </View>
+
+        {settingsOpen ? (
+          <View style={styles.settingsCard}>
+            <StatusBadge
+              label={notificationsEnabled ? "Notifications enabled" : "Notifications disabled"}
+              active={notificationsEnabled}
+            />
+            <ToggleRow
+              label="Push notifications"
+              description="Receive real-time alerts from AI Sales Assistant"
+              value={notificationsEnabled}
+              onValueChange={setNotificationsEnabled}
+            />
+            <View style={styles.settingsDivider} />
+            <Pressable
+              onPress={handleLogout}
+              style={({ pressed }) => [styles.logoutRow, pressed && styles.logoutPressed]}
+            >
+              <Ionicons name="log-out-outline" size={18} color={colors.danger} />
+              <Text style={styles.logoutLabel}>Log out</Text>
+            </Pressable>
+          </View>
+        ) : null}
+
+        <View style={styles.listHeader}>
+          <Text style={styles.title}>Notifications</Text>
+          <View style={styles.headerActions}>
+            {unreadCount > 0 ? (
+              <Pressable onPress={() => markAllAsRead()} hitSlop={8}>
+                <Text style={styles.markAllLabel}>Mark all as read</Text>
+              </Pressable>
+            ) : null}
+            {notifications.length > 0 ? (
+              <Pressable onPress={handleClearAll} hitSlop={8}>
+                <Text style={styles.clearAllLabel}>Clear all</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        </View>
+
+        <SectionList
+          style={styles.list}
+          sections={sections}
+          keyExtractor={(item) => item.id}
+          stickySectionHeadersEnabled={false}
+          contentContainerStyle={notifications.length === 0 ? styles.emptyContainer : undefined}
+          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refresh} tintColor={colors.primary} />}
+          renderSectionHeader={({ section }) => <Text style={styles.sectionLabel}>{section.title}</Text>}
+          renderItem={({ item }) => (
+            <NotificationRow item={item} onPress={() => handlePress(item)} onDelete={() => handleDelete(item)} />
+          )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={
+            !isLoading ? (
+              <View style={styles.empty}>
+                <Ionicons name="notifications-off-outline" size={32} color={colors.textMuted} />
+                <Text style={styles.emptyLabel}>No notifications yet</Text>
+              </View>
+            ) : null
+          }
+        />
+      </View>
     </Screen>
   );
 }
@@ -120,15 +187,104 @@ function NotificationRow({
 }
 
 const styles = StyleSheet.create({
+  frame: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: colors.surfaceBorder,
+    borderRadius: 28,
+    padding: 20,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    elevation: 3,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexShrink: 1,
+    gap: 12,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primaryMuted,
+  },
+  avatarLabel: {
+    color: colors.primary,
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  greeting: {
+    color: colors.textPrimary,
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  subGreeting: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  gearButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primaryMuted,
+  },
+  gearPressed: {
+    opacity: 0.7,
+  },
+  settingsCard: {
+    marginTop: 16,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    borderRadius: 20,
+    padding: 16,
+  },
+  settingsDivider: {
+    height: 1,
+    backgroundColor: colors.surfaceBorder,
+    marginVertical: 4,
+  },
+  logoutRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingTop: 14,
+  },
+  logoutPressed: {
+    opacity: 0.7,
+  },
+  logoutLabel: {
+    color: colors.danger,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  listHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 28,
+    marginBottom: 14,
+  },
+  list: {
+    flex: 1,
   },
   title: {
     color: colors.textPrimary,
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "700",
   },
   headerActions: {
