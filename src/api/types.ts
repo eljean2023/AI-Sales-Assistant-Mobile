@@ -34,4 +34,6 @@ export interface MobileNotification {
   body: string | null;
   createdAt: string;
   readAt: string | null;
+  companyId: string | null;
+  metadata: Record<string, unknown> | null;
 }

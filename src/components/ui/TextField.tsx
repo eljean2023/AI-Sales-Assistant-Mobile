@@ -1,5 +1,7 @@
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from "react-native";
 
+import { colors } from "../../theme/colors";
+
 interface TextFieldProps extends TextInputProps {
   label: string;
 }
@@ -10,7 +12,7 @@ export function TextField({ label, style, ...inputProps }: TextFieldProps) {
       <Text style={styles.label}>{label}</Text>
       <TextInput
         style={[styles.input, style]}
-        placeholderTextColor="#5B6472"
+        placeholderTextColor={colors.textMuted}
         autoCapitalize="none"
         autoCorrect={false}
         {...inputProps}
@@ -24,14 +26,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    color: "#A9B1BD",
+    color: colors.textSecondary,
     fontSize: 13,
     marginBottom: 6,
   },
   input: {
-    backgroundColor: "#161E2C",
-    color: "#F5F7FA",
-    borderRadius: 10,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    color: colors.textPrimary,
+    borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 16,

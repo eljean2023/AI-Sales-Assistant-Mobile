@@ -7,6 +7,7 @@ import { getNotification } from "../../../src/api/notifications.api";
 import type { MobileNotification } from "../../../src/api/types";
 import { Screen } from "../../../src/components/ui/Screen";
 import { getNotificationVisual, relativeTime } from "../../../src/notifications/presentation";
+import { colors } from "../../../src/theme/colors";
 
 export default function NotificationDetailScreen() {
   // Opened from a push tap: title/body/data arrive as route params directly (see
@@ -50,7 +51,7 @@ export default function NotificationDetailScreen() {
     return (
       <Screen>
         <View style={styles.centered}>
-          <ActivityIndicator color="#A9B1BD" />
+          <ActivityIndicator color={colors.textSecondary} />
         </View>
       </Screen>
     );
@@ -60,7 +61,7 @@ export default function NotificationDetailScreen() {
     return (
       <Screen>
         <View style={styles.centered}>
-          <Ionicons name="alert-circle-outline" size={28} color="#5B6472" />
+          <Ionicons name="alert-circle-outline" size={28} color={colors.textMuted} />
           <Text style={styles.emptyLabel}>Couldn't load this notification</Text>
         </View>
       </Screen>
@@ -91,22 +92,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    color: "#F5F7FA",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "700",
     marginBottom: 12,
   },
   body: {
-    color: "#A9B1BD",
+    color: colors.textSecondary,
     fontSize: 16,
     marginBottom: 16,
   },
   time: {
-    color: "#5B6472",
+    color: colors.textMuted,
     fontSize: 13,
   },
   debugData: {
-    color: "#5B6472",
+    color: colors.textMuted,
     fontSize: 12,
   },
   centered: {
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   emptyLabel: {
-    color: "#5B6472",
+    color: colors.textMuted,
     fontSize: 14,
     marginTop: 12,
   },

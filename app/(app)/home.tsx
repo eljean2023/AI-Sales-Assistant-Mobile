@@ -7,6 +7,7 @@ import { NotificationBell } from "../../src/components/NotificationBell";
 import { Button } from "../../src/components/ui/Button";
 import { Screen } from "../../src/components/ui/Screen";
 import { useNotifications } from "../../src/notifications/NotificationContext";
+import { colors } from "../../src/theme/colors";
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ export default function HomeScreen() {
   return (
     <Screen>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <Text style={{ color: "#F5F7FA", fontSize: 22, fontWeight: "700" }}>
+        <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: "700" }}>
           Welcome{user?.name ? `, ${user.name}` : ""}
         </Text>
         <NotificationBell />
@@ -29,12 +30,12 @@ export default function HomeScreen() {
       </View>
 
       <View style={{ marginBottom: 32 }}>
-        <Text style={{ color: "#A9B1BD", fontSize: 13, marginBottom: 8 }}>Last notification</Text>
-        <Text style={{ color: "#F5F7FA", fontSize: 16 }}>
+        <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 8 }}>Last notification</Text>
+        <Text style={{ color: colors.textPrimary, fontSize: 16 }}>
           {lastNotification?.title ?? "No notifications received yet"}
         </Text>
         {lastNotification?.body ? (
-          <Text style={{ color: "#A9B1BD", marginTop: 4 }}>{lastNotification.body}</Text>
+          <Text style={{ color: colors.textSecondary, marginTop: 4 }}>{lastNotification.body}</Text>
         ) : null}
       </View>
 

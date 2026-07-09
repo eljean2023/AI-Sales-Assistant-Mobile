@@ -6,6 +6,7 @@ import { useAuth } from "../../src/auth/useAuth";
 import { Button } from "../../src/components/ui/Button";
 import { Screen } from "../../src/components/ui/Screen";
 import { TextField } from "../../src/components/ui/TextField";
+import { colors } from "../../src/theme/colors";
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -36,7 +37,7 @@ export default function LoginScreen() {
 
   return (
     <Screen>
-      <Text style={{ color: "#F5F7FA", fontSize: 24, fontWeight: "700", marginBottom: 32 }}>
+      <Text style={{ color: colors.textPrimary, fontSize: 24, fontWeight: "700", marginBottom: 32 }}>
         AI Sales Assistant
       </Text>
       <TextField
@@ -53,7 +54,7 @@ export default function LoginScreen() {
         secureTextEntry
         placeholder="••••••••"
       />
-      {error ? <Text style={{ color: "#FF6B6B", marginBottom: 16 }}>{error}</Text> : null}
+      {error ? <Text style={{ color: colors.danger, marginBottom: 16 }}>{error}</Text> : null}
       <Button label="Log in" onPress={handleSubmit} loading={submitting} disabled={!email || !password} />
     </Screen>
   );

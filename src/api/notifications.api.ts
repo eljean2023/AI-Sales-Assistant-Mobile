@@ -17,3 +17,11 @@ export async function getNotification(id: string): Promise<MobileNotification> {
 export async function markNotificationRead(id: string): Promise<void> {
   await apiClient.patch(`/api/mobile/notifications/${id}/read`);
 }
+
+export async function deleteNotification(id: string): Promise<void> {
+  await apiClient.delete(`/api/mobile/notifications/${id}`);
+}
+
+export async function deleteAllNotifications(): Promise<void> {
+  await apiClient.delete("/api/mobile/notifications");
+}

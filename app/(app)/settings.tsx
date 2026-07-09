@@ -5,6 +5,7 @@ import { Button } from "../../src/components/ui/Button";
 import { Screen } from "../../src/components/ui/Screen";
 import { ToggleRow } from "../../src/components/ui/ToggleRow";
 import { useNotifications } from "../../src/notifications/NotificationContext";
+import { colors } from "../../src/theme/colors";
 
 export default function SettingsScreen() {
   const { logout } = useAuth();
@@ -21,7 +22,7 @@ export default function SettingsScreen() {
 
   return (
     <Screen>
-      <Text style={{ color: "#F5F7FA", fontSize: 22, fontWeight: "700", marginBottom: 24 }}>Settings</Text>
+      <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: "700", marginBottom: 24 }}>Settings</Text>
 
       <ToggleRow
         label="Push notifications"

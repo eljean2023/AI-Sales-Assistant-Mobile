@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "../auth/useAuth";
 import { hasNotificationCenterAccess } from "../notifications/access";
 import { useNotificationCenter } from "../notifications/NotificationCenterContext";
+import { colors } from "../theme/colors";
 
 // Self-gating: renders nothing for roles without a Notification Center, so callers (Home,
 // future screens) never need to repeat the role check themselves.
@@ -20,7 +21,7 @@ export function NotificationBell() {
       hitSlop={8}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
-      <Ionicons name="notifications-outline" size={24} color="#F5F7FA" />
+      <Ionicons name="notifications-outline" size={24} color={colors.textPrimary} />
       {unreadCount > 0 ? (
         <View style={styles.badge}>
           <Text style={styles.badgeLabel}>{unreadCount > 99 ? "99+" : unreadCount}</Text>
@@ -48,14 +49,14 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     paddingHorizontal: 3,
-    backgroundColor: "#FF3B5C",
+    backgroundColor: colors.danger,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: "#0B1220",
+    borderColor: colors.background,
   },
   badgeLabel: {
-    color: "#F5F7FA",
+    color: colors.onPrimary,
     fontSize: 10,
     fontWeight: "700",
   },

@@ -1,5 +1,7 @@
 import { StyleSheet, Switch, Text, View } from "react-native";
 
+import { colors } from "../../theme/colors";
+
 interface ToggleRowProps {
   label: string;
   description?: string;
@@ -19,7 +21,7 @@ export function ToggleRow({ label, description, value, onValueChange, disabled }
         value={value}
         onValueChange={onValueChange}
         disabled={disabled}
-        trackColor={{ false: "#2A3242", true: "#4F9DFF" }}
+        trackColor={{ false: colors.surfaceBorder, true: colors.primary }}
       />
     </View>
   );
@@ -37,12 +39,12 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   label: {
-    color: "#F5F7FA",
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: "500",
   },
   description: {
-    color: "#A9B1BD",
+    color: colors.textSecondary,
     fontSize: 13,
     marginTop: 2,
   },

@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import { colors } from "../theme/colors";
+
 interface StatusBadgeProps {
   label: string;
   active: boolean;
@@ -8,7 +10,7 @@ interface StatusBadgeProps {
 export function StatusBadge({ label, active }: StatusBadgeProps) {
   return (
     <View style={styles.row}>
-      <View style={[styles.dot, { backgroundColor: active ? "#3DDC84" : "#5B6472" }]} />
+      <View style={[styles.dot, { backgroundColor: active ? colors.primary : colors.textMuted }]} />
       <Text style={styles.label}>{label}</Text>
     </View>
   );
@@ -27,7 +29,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   label: {
-    color: "#F5F7FA",
+    color: colors.textPrimary,
     fontSize: 14,
   },
 });

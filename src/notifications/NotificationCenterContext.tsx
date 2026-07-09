@@ -10,14 +10,21 @@ import {
 } from "react";
 import { AppState } from "react-native";
 
-import { listNotifications, markNotificationRead } from "../api/notifications.api";
+import {
+  deleteAllNotifications,
+  deleteNotification,
+  listNotifications,
+  markNotificationRead,
+} from "../api/notifications.api";
 import type { MobileNotification } from "../api/types";
 import { useAuth } from "../auth/useAuth";
 import { hasNotificationCenterAccess } from "./access";
+import { groupRegistrationEvents } from "./presentation";
 import { markAllRead, markRead, pruneReadIds } from "./readState";
 
 export interface NotificationItem extends MobileNotification {
   read: boolean;
+  memberIds?: string[];
 }
 
 export interface NotificationCenterContextValue {
@@ -27,6 +34,8 @@ export interface NotificationCenterContextValue {
   refresh: () => Promise<void>;
   markOneRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
+  deleteOne: (ids: string[]) => Promise<void>;
+  deleteAll: () => Promise<void>;
 }
 
 const NotificationCenterContext = createContext<NotificationCenterContextValue | null>(null);
@@ -85,19 +94,33 @@ export function NotificationCenterProvider({ children }: PropsWithChildren) {
     return messaging().onMessage(() => refresh());
   }, [enabled, refresh]);
 
+  const notifications = useMemo<NotificationItem[]>(
+    () => groupRegistrationEvents(raw.map((n) => ({ ...n, read: isRead(n, readIds) }))),
+    [raw, readIds],
+  );
+  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
+
   const markOneRead = useCallback(async (id: string) => {
-    const target = raw.find((n) => n.id === id);
-    if (!target || isRead(target, readIds)) return;
+    const target = notifications.find((n) => n.id === id);
+    if (!target || target.read) return;
+    const memberIds = target.memberIds ?? [id];
 
-    if (target.source === "tenant") {
-      await markNotificationRead(id).catch(() => undefined);
-      setRaw((prev) => prev.map((n) => (n.id === id ? { ...n, readAt: new Date().toISOString() } : n)));
-      return;
-    }
+    await Promise.all(
+      memberIds.map(async (memberId) => {
+        const member = raw.find((n) => n.id === memberId);
+        if (!member || isRead(member, readIds)) return;
 
-    const updated = await markRead(id);
-    setReadIds(updated);
-  }, [raw, readIds]);
+        if (member.source === "tenant") {
+          await markNotificationRead(memberId).catch(() => undefined);
+          setRaw((prev) => prev.map((n) => (n.id === memberId ? { ...n, readAt: new Date().toISOString() } : n)));
+          return;
+        }
+
+        const updated = await markRead(memberId);
+        setReadIds(updated);
+      }),
+    );
+  }, [notifications, raw, readIds]);
 
   const markAllAsRead = useCallback(async () => {
     const unreadTenantIds = raw.filter((n) => n.source === "tenant" && n.readAt === null).map((n) => n.id);
@@ -114,15 +137,19 @@ export function NotificationCenterProvider({ children }: PropsWithChildren) {
     }
   }, [raw]);
 
-  const notifications = useMemo<NotificationItem[]>(
-    () => raw.map((n) => ({ ...n, read: isRead(n, readIds) })),
-    [raw, readIds],
-  );
-  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
+  const deleteOne = useCallback(async (ids: string[]) => {
+    await Promise.all(ids.map((id) => deleteNotification(id).catch(() => undefined)));
+    setRaw((prev) => prev.filter((n) => !ids.includes(n.id)));
+  }, []);
+
+  const deleteAll = useCallback(async () => {
+    await deleteAllNotifications().catch(() => undefined);
+    setRaw([]);
+  }, []);
 
   const value = useMemo<NotificationCenterContextValue>(
-    () => ({ notifications, unreadCount, isLoading, refresh, markOneRead, markAllAsRead }),
-    [notifications, unreadCount, isLoading, refresh, markOneRead, markAllAsRead],
+    () => ({ notifications, unreadCount, isLoading, refresh, markOneRead, markAllAsRead, deleteOne, deleteAll }),
+    [notifications, unreadCount, isLoading, refresh, markOneRead, markAllAsRead, deleteOne, deleteAll],
   );
 
   return <NotificationCenterContext.Provider value={value}>{children}</NotificationCenterContext.Provider>;

@@ -1,6 +1,9 @@
 import type { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
 
+import type { MobileNotification } from "../api/types";
+import { colors } from "../theme/colors";
+
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
 type Category = "BUSINESS" | "PAYMENT" | "SYSTEM" | "SECURITY" | "TENANT";
@@ -38,11 +41,11 @@ const CATEGORY_ICON: Record<Category, IconName> = {
 };
 
 const PRIORITY_COLOR: Record<Priority, string> = {
-  INFO: "#4F9DFF",
-  SUCCESS: "#3DDC84",
-  WARNING: "#F5B84F",
-  ERROR: "#FF6B6B",
-  CRITICAL: "#FF3B5C",
+  INFO: "#2F9E8F",
+  SUCCESS: colors.success,
+  WARNING: colors.warning,
+  ERROR: colors.danger,
+  CRITICAL: "#B23A35",
 };
 
 // Direct icon/color per TenantNotificationType (backend's prisma/schema.prisma) — this table
@@ -63,11 +66,14 @@ export interface NotificationVisual {
 }
 
 export function getNotificationVisual(source: "platform" | "tenant", type: string): NotificationVisual {
+  if (type === "CUSTOMER_REGISTERED_GROUP") {
+    return { icon: "people-outline", color: PRIORITY_COLOR.SUCCESS };
+  }
   if (source === "tenant") {
-    return TENANT_NOTIFICATION_META[type] ?? { icon: CATEGORY_ICON.TENANT, color: "#A9B1BD" };
+    return TENANT_NOTIFICATION_META[type] ?? { icon: CATEGORY_ICON.TENANT, color: colors.textMuted };
   }
   const meta = PLATFORM_EVENT_META[type];
-  if (!meta) return { icon: "notifications-outline", color: "#A9B1BD" };
+  if (!meta) return { icon: "notifications-outline", color: colors.textMuted };
   return { icon: CATEGORY_ICON[meta.category], color: PRIORITY_COLOR[meta.priority] };
 }
 
@@ -102,6 +108,73 @@ export function dateGroupLabel(iso: string): DateGroupLabel {
   if (diffDays <= 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   return "Older";
+}
+
+export interface GroupableNotification extends MobileNotification {
+  read: boolean;
+  memberIds?: string[];
+}
+
+const REGISTRATION_GROUP_TYPES = new Set(["COMPANY_REGISTERED", "USER_REGISTERED", "TRIAL_STARTED"]);
+// registerAction (backend app/(auth)/actions.ts) emits all three events synchronously, one right
+// after another, so a real triple is always milliseconds apart — this window is generous purely
+// to tolerate clock/latency skew, not because a real gap that large is expected.
+const REGISTRATION_GROUP_WINDOW_MS = 10 * 60 * 1000;
+
+// Merges the three PlatformEvent rows one signup produces (COMPANY_REGISTERED, USER_REGISTERED,
+// TRIAL_STARTED — see backend lib/platform-events/registry.ts) into a single "New customer
+// registered" card. Matched by companyId + all three types present within the time window above;
+// anything left over (a signup missing one of the three, or a non-registration event) passes
+// through unchanged.
+export function groupRegistrationEvents<T extends GroupableNotification>(items: T[]): T[] {
+  const candidatesByCompany = new Map<string, T[]>();
+  for (const item of items) {
+    if (item.source !== "platform" || !item.companyId || !REGISTRATION_GROUP_TYPES.has(item.type)) continue;
+    const list = candidatesByCompany.get(item.companyId) ?? [];
+    list.push(item);
+    candidatesByCompany.set(item.companyId, list);
+  }
+
+  const groups: T[] = [];
+  const consumedIds = new Set<string>();
+
+  for (const [companyId, candidates] of candidatesByCompany) {
+    const byType = new Map<string, T>();
+    for (const candidate of [...candidates].sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
+      if (!byType.has(candidate.type)) byType.set(candidate.type, candidate);
+    }
+
+    const companyEvent = byType.get("COMPANY_REGISTERED");
+    const userEvent = byType.get("USER_REGISTERED");
+    const trialEvent = byType.get("TRIAL_STARTED");
+    if (!companyEvent || !userEvent || !trialEvent) continue;
+
+    const times = [companyEvent, userEvent, trialEvent].map((event) => new Date(event.createdAt).getTime());
+    if (Math.max(...times) - Math.min(...times) > REGISTRATION_GROUP_WINDOW_MS) continue;
+
+    const companyName = (companyEvent.metadata?.companyName as string | undefined) ?? "";
+    const email = (userEvent.metadata?.email as string | undefined) ?? "";
+    const latest = [companyEvent, userEvent, trialEvent].reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
+
+    groups.push({
+      ...latest,
+      id: `group:${companyId}:${companyEvent.id}`,
+      type: "CUSTOMER_REGISTERED_GROUP",
+      title: "New customer registered",
+      body: `Company: ${companyName}\nUser: ${email}\nTrial started`,
+      read: companyEvent.read && userEvent.read && trialEvent.read,
+      memberIds: [companyEvent.id, userEvent.id, trialEvent.id],
+    });
+    consumedIds.add(companyEvent.id);
+    consumedIds.add(userEvent.id);
+    consumedIds.add(trialEvent.id);
+  }
+
+  if (groups.length === 0) return items;
+
+  return [...items.filter((item) => !consumedIds.has(item.id)), ...groups].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  );
 }
 
 export function groupByDay<T extends { createdAt: string }>(items: T[]): { label: DateGroupLabel; items: T[] }[] {

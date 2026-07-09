@@ -1,5 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 
+import { colors } from "../../theme/colors";
+
 interface ButtonProps {
   label: string;
   onPress: () => void;
@@ -16,18 +18,23 @@ export function Button({ label, onPress, disabled, loading }: ButtonProps) {
       disabled={isDisabled}
       style={({ pressed }) => [styles.button, isDisabled && styles.disabled, pressed && styles.pressed]}
     >
-      {loading ? <ActivityIndicator color="#0B1220" /> : <Text style={styles.label}>{label}</Text>}
+      {loading ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.label}>{label}</Text>}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#4F9DFF",
-    borderRadius: 10,
+    backgroundColor: colors.primary,
+    borderRadius: 14,
     paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 2,
   },
   pressed: {
     opacity: 0.85,
@@ -36,7 +43,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   label: {
-    color: "#0B1220",
+    color: colors.onPrimary,
     fontSize: 16,
     fontWeight: "600",
   },
