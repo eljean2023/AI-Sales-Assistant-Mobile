@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { isAxiosError } from "axios";
 
 import { useAuth } from "../../src/auth/useAuth";
 import { Button } from "../../src/components/ui/Button";
+import { Card } from "../../src/components/ui/Card";
+import { Logo } from "../../src/components/ui/Logo";
 import { Screen } from "../../src/components/ui/Screen";
 import { TextField } from "../../src/components/ui/TextField";
 import { colors } from "../../src/theme/colors";
@@ -37,25 +39,65 @@ export default function LoginScreen() {
 
   return (
     <Screen>
-      <Text style={{ color: colors.textPrimary, fontSize: 24, fontWeight: "700", marginBottom: 32 }}>
-        AI Sales Assistant
-      </Text>
-      <TextField
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        placeholder="you@company.com"
-      />
-      <TextField
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        placeholder="••••••••"
-      />
-      {error ? <Text style={{ color: colors.danger, marginBottom: 16 }}>{error}</Text> : null}
-      <Button label="Log in" onPress={handleSubmit} loading={submitting} disabled={!email || !password} />
+      <View style={styles.wrapper}>
+        <Card style={styles.card}>
+          <View style={styles.brand}>
+            <Logo size={64} />
+            <Text style={styles.title}>AI Sales Assistant</Text>
+            <Text style={styles.subtitle}>Sign in to view your notifications</Text>
+          </View>
+
+          <TextField
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            placeholder="you@company.com"
+          />
+          <TextField
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholder="••••••••"
+          />
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <Button label="Log in" onPress={handleSubmit} loading={submitting} disabled={!email || !password} />
+        </Card>
+      </View>
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    justifyContent: "flex-start",
+    paddingTop: "10%",
+  },
+  card: {
+    paddingVertical: 32,
+  },
+  brand: {
+    alignItems: "center",
+    marginBottom: 28,
+  },
+  title: {
+    color: colors.textPrimary,
+    fontSize: 22,
+    fontWeight: "700",
+    marginTop: 16,
+  },
+  subtitle: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    marginTop: 4,
+    textAlign: "center",
+  },
+  error: {
+    color: colors.danger,
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 16,
+  },
+});

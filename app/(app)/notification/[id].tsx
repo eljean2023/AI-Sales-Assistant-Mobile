@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { getNotification } from "../../../src/api/notifications.api";
 import type { MobileNotification } from "../../../src/api/types";
+import { Card } from "../../../src/components/ui/Card";
 import { Screen } from "../../../src/components/ui/Screen";
 import { getNotificationVisual, relativeTime } from "../../../src/notifications/presentation";
 import { colors } from "../../../src/theme/colors";
@@ -38,11 +39,13 @@ export default function NotificationDetailScreen() {
 
     return (
       <Screen>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.body}>{body}</Text>
-        {Object.keys(parsedData).length > 0 ? (
-          <Text style={styles.debugData}>{JSON.stringify(parsedData, null, 2)}</Text>
-        ) : null}
+        <Card style={styles.card}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.body}>{body}</Text>
+          {Object.keys(parsedData).length > 0 ? (
+            <Text style={styles.debugData}>{JSON.stringify(parsedData, null, 2)}</Text>
+          ) : null}
+        </Card>
       </Screen>
     );
   }
@@ -50,9 +53,9 @@ export default function NotificationDetailScreen() {
   if (isLoading) {
     return (
       <Screen>
-        <View style={styles.centered}>
+        <Card style={[styles.card, styles.centered]}>
           <ActivityIndicator color={colors.textSecondary} />
-        </View>
+        </Card>
       </Screen>
     );
   }
@@ -60,10 +63,10 @@ export default function NotificationDetailScreen() {
   if (error || !fetched) {
     return (
       <Screen>
-        <View style={styles.centered}>
+        <Card style={[styles.card, styles.centered]}>
           <Ionicons name="alert-circle-outline" size={28} color={colors.textMuted} />
           <Text style={styles.emptyLabel}>Couldn't load this notification</Text>
-        </View>
+        </Card>
       </Screen>
     );
   }
@@ -72,17 +75,22 @@ export default function NotificationDetailScreen() {
 
   return (
     <Screen>
-      <View style={[styles.iconWrap, { backgroundColor: `${visual.color}26` }]}>
-        <Ionicons name={visual.icon} size={22} color={visual.color} />
-      </View>
-      <Text style={styles.title}>{fetched.title}</Text>
-      {fetched.body ? <Text style={styles.body}>{fetched.body}</Text> : null}
-      <Text style={styles.time}>{relativeTime(fetched.createdAt)}</Text>
+      <Card style={styles.card}>
+        <View style={[styles.iconWrap, { backgroundColor: `${visual.color}33` }]}>
+          <Ionicons name={visual.icon} size={22} color={visual.color} />
+        </View>
+        <Text style={styles.title}>{fetched.title}</Text>
+        {fetched.body ? <Text style={styles.body}>{fetched.body}</Text> : null}
+        <Text style={styles.time}>{relativeTime(fetched.createdAt)}</Text>
+      </Card>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  card: {
+    flex: 1,
+  },
   iconWrap: {
     width: 44,
     height: 44,

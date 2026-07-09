@@ -5,6 +5,8 @@ import { Alert, Pressable, RefreshControl, SectionList, StyleSheet, Text, View }
 
 import { useAuth } from "../../../src/auth/useAuth";
 import { StatusBadge } from "../../../src/components/StatusBadge";
+import { Card } from "../../../src/components/ui/Card";
+import { Logo } from "../../../src/components/ui/Logo";
 import { Screen } from "../../../src/components/ui/Screen";
 import { ToggleRow } from "../../../src/components/ui/ToggleRow";
 import { useNotifications } from "../../../src/notifications/NotificationContext";
@@ -60,15 +62,22 @@ export default function NotificationsScreen() {
 
   return (
     <Screen>
-      <View style={styles.frame}>
+      <Card style={styles.frame}>
+        <View style={styles.brandRow}>
+          <Logo size={28} />
+          <Text style={styles.brandLabel}>AI Sales Assistant</Text>
+        </View>
+
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <View style={styles.avatar}>
               <Text style={styles.avatarLabel}>{initial}</Text>
             </View>
-            <View>
-              <Text style={styles.greeting}>Welcome{user?.name ? `, ${user.name}` : ""}</Text>
-              <Text style={styles.subGreeting}>
+            <View style={styles.greetingBlock}>
+              <Text style={styles.greeting} numberOfLines={1}>
+                Welcome{user?.name ? `, ${user.name}` : ""}
+              </Text>
+              <Text style={styles.subGreeting} numberOfLines={1}>
                 {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}` : "You're all caught up"}
               </Text>
             </View>
@@ -143,7 +152,7 @@ export default function NotificationsScreen() {
             ) : null
           }
         />
-      </View>
+      </Card>
     </Screen>
   );
 }
@@ -161,7 +170,7 @@ function NotificationRow({
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}>
-      <View style={[styles.iconWrap, { backgroundColor: `${visual.color}26` }]}>
+      <View style={[styles.iconWrap, { backgroundColor: `${visual.color}33` }]}>
         <Ionicons name={visual.icon} size={18} color={visual.color} />
       </View>
 
@@ -189,16 +198,19 @@ function NotificationRow({
 const styles = StyleSheet.create({
   frame: {
     flex: 1,
-    backgroundColor: colors.surface,
-    borderWidth: 1.5,
-    borderColor: colors.surfaceBorder,
-    borderRadius: 28,
-    padding: 20,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 1,
-    shadowRadius: 20,
-    elevation: 3,
+  },
+  brandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 18,
+  },
+  brandLabel: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
   },
   header: {
     flexDirection: "row",
@@ -211,6 +223,10 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     gap: 12,
   },
+  greetingBlock: {
+    flexShrink: 1,
+    minWidth: 0,
+  },
   avatar: {
     width: 44,
     height: 44,
@@ -220,7 +236,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryMuted,
   },
   avatarLabel: {
-    color: colors.primary,
+    color: colors.primaryStrong,
     fontSize: 18,
     fontWeight: "700",
   },
@@ -293,7 +309,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   markAllLabel: {
-    color: colors.primary,
+    color: colors.primaryStrong,
     fontSize: 13,
     fontWeight: "600",
   },
@@ -366,7 +382,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryStrong,
     marginLeft: 8,
     marginTop: 6,
   },

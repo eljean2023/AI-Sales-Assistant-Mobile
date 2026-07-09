@@ -25,7 +25,7 @@ export function Button({ label, onPress, disabled, loading }: ButtonProps) {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryStrong,
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: "center",

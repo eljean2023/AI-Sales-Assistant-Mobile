@@ -28,11 +28,12 @@ const styles = StyleSheet.create({
   label: {
     color: colors.textSecondary,
     fontSize: 13,
+    fontWeight: "600",
     marginBottom: 6,
   },
   input: {
     backgroundColor: colors.surface,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.surfaceBorder,
     color: colors.textPrimary,
     borderRadius: 12,

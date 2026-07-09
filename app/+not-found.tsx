@@ -21,5 +21,5 @@ const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20, backgroundColor: colors.background },
   text: { color: colors.textPrimary, fontSize: 18, marginBottom: 12 },
   link: { paddingVertical: 12 },
-  linkText: { color: colors.primary, fontSize: 16 },
+  linkText: { color: colors.primaryStrong, fontSize: 16, fontWeight: "600" },
 });
